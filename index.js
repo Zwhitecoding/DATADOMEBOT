@@ -6,10 +6,10 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-const BOT_TOKEN = '7518599955:AAHle_yIFfRmuG6Jl3U0dl_VE2kXcoiNbOo';
-const MONGO_URI = 'mongodb+srv://toshidev0:zcode22107@dbtxt.3dxoaud.mongodb.net/?retryWrites=true&w=majority&appName=DBTXT';
+const BOT_TOKEN = '8246991758:AAFiJpGJ0O-wxN00uBxW7Zg6I__RmxMDOh8';
+const MONGO_URI = 'mongodb+srv://toshidev0:zcode22107@dbtxt.3dxoaud.mongodb.net/DATADOME';
 const PAGE_SIZE = 5;
-const ADMIN_ID = '7810011711';
+const ADMIN_ID = '6186936436';
 
 const app = express();
 const bot = new Telegraf(BOT_TOKEN);
