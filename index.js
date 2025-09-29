@@ -47,7 +47,7 @@ const receiptSessions = {};
 
 bot.start((ctx) => {
   ctx.replyWithPhoto('https://i.postimg.cc/sXB7tynh/received-1458288695448354.jpg', {
-    caption: '𝐖𝐄𝐋𝐂𝐎𝐌𝐄 𝐓𝐎 𝐓𝐎𝐒𝐇𝐈 𝐃𝐀𝐓𝐀𝐃𝐎𝐌𝐄 𝐁𝐎𝐓 𝐒𝐇𝐎𝐏\n\n𝐏𝐑𝐄𝐌𝐈𝐔𝐌 𝐀𝐍𝐃 𝐅𝐑𝐄𝐒𝐇 𝐃𝐀𝐓𝐀𝐃𝐎𝐌𝐄\n\n𝐀𝐅𝐅𝐎𝐑𝐃𝐀𝐁𝐋𝐄 𝐏𝐑𝐈𝐂𝐄 𝐎𝐍𝐋𝐘\n\n𝐓𝐎 𝐒𝐄𝐄 𝐓𝐇𝐄 𝐀𝐕𝐀𝐈𝐋𝐀𝐁𝐋𝐄 𝐓𝐗𝐓 𝐉𝐔𝐒𝐓 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐓𝐇𝐄 " /files " 𝐀𝐕𝐀𝐈𝐋 𝐍𝐎𝐖 𝐁𝐀𝐒𝐈𝐂 𝐓𝐎 𝐔𝐒𝐄 𝐉𝐔𝐒𝐓 𝐒𝐄𝐍𝐃 𝐓𝐇𝐄 𝐑𝐄𝐂𝐄𝐈𝐏𝐓 𝐓𝐎 𝐓𝐇𝐄 𝐁𝐎𝐓 𝐓𝐇𝐀𝐍𝐊 𝐘𝐎𝐔𝐔𝐔𝐔𝐔\n\n𝐃𝐄𝐕𝐄𝐋𝐎𝐏𝐄𝐑 @toshidevmain '
+    caption: '𝐖𝐄𝐋𝐂𝐎𝐌𝐄 𝐓𝐎 𝐓𝐎𝐒𝐇𝐈 𝐃𝐀𝐓𝐀𝐃𝐎𝐌𝐄 𝐁𝐎𝐓 𝐒𝐇𝐎𝐏\n\n𝐏𝐑𝐄𝐌𝐈𝐔𝐌 𝐀𝐍𝐃 𝐅𝐑𝐄𝐒𝐇 𝐃𝐀𝐓𝐀𝐃𝐎𝐌𝐄\n\n𝐀𝐅𝐅𝐎𝐑𝐃𝐀𝐁𝐋𝐄 𝐏𝐑𝐈𝐂𝐄 𝐎𝐍𝐋𝐘\n\n𝐓𝐎 𝐒𝐄𝐄 𝐓𝐇𝐄 𝐀𝐕𝐀𝐈𝐋𝐀𝐁𝐋𝐄 𝐓𝐗𝐓 𝐉𝐔𝐒𝐓 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐓𝐇𝐄 " /files "\n\n𝐃𝐄𝐕𝐄𝐋𝐎𝐏𝐄𝐑 @toshidevmain '
   });
 
   const userId = ctx.from.id;
