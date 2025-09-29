@@ -1,91 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TOSHI DATADOME BOT ADMIN PANEL</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      font-family: 'Courier New', Courier, monospace;
-      background-color: #f0e68c;
-      color: #333;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-image: url('https://www.transparenttextures.com/patterns/paper.png');
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-
-    h2 {
-      margin-bottom: 20px;
-      text-shadow: 1px 1px 0 #fff;
-    }
-
-    form {
-      background: #d3c6a8;
-      border: 2px solid #8b5a2b;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
-      width: 300px;
-      text-align: center;
-    }
-
-    .input-container {
-      margin: 10px 0;
-    }
-
-    input[type="file"],
-    input[type="password"],
-    input[type="submit"] {
-      width: calc(100% - 20px);
-      padding: 10px;
-      border: 2px solid #8b5a2b;
-      border-radius: 5px;
-      font-size: 16px;
-      background: #fff;
-      color: #333;
-      transition: background 0.3s, border-color 0.3s;
-      box-sizing: border-box;
-    }
-
-    input[type="file"]:hover,
-    input[type="password"]:hover {
-      background: #f9f9f9;
-      border-color: #6b4f2a;
-    }
-
-    input[type="submit"] {
-      background: #8b5a2b;
-      color: white;
-      cursor: pointer;
-      transition: background 0.3s;
-      font-weight: bold;
-    }
-
-    input[type="submit"]:hover {
-      background: #6b4f2a;
-    }
-
-    input[type="submit"]:active {
-      box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.5);
-      transform: translateY(2px);
-    }
+    .animate-fadeIn { animation: fadeIn 0.6s ease-out; }
   </style>
 </head>
-<body>
-  <form action="/upload" method="POST" enctype="multipart/form-data">
-    <h2>Admin Panel</h2>
-    <div class="input-container">
-      <input type="file" name="file" accept=".txt" required>
+<body class="bg-gray-900 text-white h-screen flex">
+  <aside class="w-64 bg-gray-800 border-r border-gray-700 flex flex-col">
+    <div class="p-6 text-center font-bold text-xl text-cyan-400">⚡ TOSHI BOT</div>
+    <nav class="flex-1 px-4 space-y-2">
+      <a href="#dashboard" class="block py-2 px-3 rounded hover:bg-gray-700">📊 Dashboard</a>
+      <a href="#upload" class="block py-2 px-3 rounded hover:bg-gray-700">📤 Upload</a>
+      <a href="#files" class="block py-2 px-3 rounded hover:bg-gray-700">📂 Files</a>
+      <a href="#settings" class="block py-2 px-3 rounded hover:bg-gray-700">⚙️ Settings</a>
+    </nav>
+    <div class="p-4 text-xs text-gray-400 text-center">© 2025 TOSHI BOT SYSTEMS</div>
+  </aside>
+
+  <main class="flex-1 flex flex-col">
+    <header class="flex justify-between items-center px-8 py-4 border-b border-gray-800 bg-gray-850">
+      <h1 class="text-2xl font-bold text-cyan-400">TOSHI DATADOME BOT ADMIN PANEL</h1>
+      <div class="flex items-center space-x-4">
+        <span class="text-sm text-gray-300">Admin</span>
+        <img src="https://i.postimg.cc/sXB7tynh/received-1458288695448354.jpg" alt="Admin Avatar" class="w-8 h-8 rounded-full border border-cyan-400">
+      </div>
+    </header>
+
+    <div class="flex-1 p-8 overflow-y-auto space-y-12">
+      <section id="dashboard" class="animate-fadeIn">
+        <h2 class="text-lg font-semibold mb-4">📊 Dashboard Overview</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow">
+            <h3 class="text-gray-400 text-sm">Total Files</h3>
+            <p id="stat-files" class="text-2xl font-bold text-cyan-400">0</p>
+          </div>
+          <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow">
+            <h3 class="text-gray-400 text-sm">Active Sessions</h3>
+            <p id="stat-sessions" class="text-2xl font-bold text-cyan-400">1</p>
+          </div>
+          <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow">
+            <h3 class="text-gray-400 text-sm">Last Upload</h3>
+            <p id="stat-last" class="text-2xl font-bold text-cyan-400">N/A</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="upload" class="animate-fadeIn">
+        <h2 class="text-lg font-semibold mb-4">📤 Upload New File</h2>
+        <form action="/upload" method="POST" enctype="multipart/form-data" class="bg-gray-800 p-6 rounded-xl border border-gray-700 space-y-4 w-full max-w-lg">
+          <div>
+            <label class="block mb-2 text-sm font-semibold text-gray-300">Select File</label>
+            <input type="file" name="file" accept=".txt" required class="w-full px-3 py-2 border border-cyan-500/40 bg-gray-900 rounded-lg text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-cyan-500 file:text-white hover:file:bg-cyan-400 transition">
+          </div>
+          <div>
+            <label class="block mb-2 text-sm font-semibold text-gray-300">Set Password</label>
+            <input type="password" name="password" placeholder="Enter password" required class="w-full px-3 py-2 border border-cyan-500/40 bg-gray-900 rounded-lg text-sm">
+          </div>
+          <button type="submit" class="w-full py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-white font-semibold transition">Upload</button>
+        </form>
+      </section>
+
+      <section id="files" class="animate-fadeIn">
+        <h2 class="text-lg font-semibold mb-4">📂 Uploaded Files</h2>
+        <div id="file-list" class="space-y-3"></div>
+      </section>
     </div>
-    <div class="input-container">
-      <input type="password" name="password" placeholder="Set a password" required>
-    </div>
-    <div class="input-container">
-      <input type="submit" value="Upload File">
-    </div>
-  </form>
+  </main>
+
+  <script>
+    async function loadFiles() {
+      const res = await fetch('/files');
+      const files = await res.json();
+      const list = document.getElementById('file-list');
+      const statFiles = document.getElementById('stat-files');
+      const statLast = document.getElementById('stat-last');
+      list.innerHTML = '';
+      statFiles.textContent = files.length;
+      if (files.length > 0) statLast.textContent = files[files.length - 1].filename;
+      files.forEach(file => {
+        const div = document.createElement('div');
+        div.className = 'bg-gray-800 border border-gray-700 p-4 rounded-lg flex items-center justify-between';
+        div.innerHTML = `
+          <span>${file.filename}</span>
+          <div class="space-x-2">
+            <a href="/files/${file._id}" class="px-3 py-1 rounded bg-cyan-500 hover:bg-cyan-400 text-white text-sm">Download</a>
+            <button onclick="deleteFile('${file._id}')" class="px-3 py-1 rounded bg-red-500 hover:bg-red-400 text-white text-sm">Delete</button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    async function deleteFile(id) {
+      await fetch('/files/' + id, { method: 'DELETE' });
+      loadFiles();
+    }
+
+    loadFiles();
+  </script>
 </body>
 </html>
