@@ -36,6 +36,19 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   await file.save();
   res.send('✅ File uploaded successfully');
 });
+app.get('/files', async (req, res) => {
+  const files = await File.find().sort({ _id: -1 });
+  res.json(files);
+});
+
+app.delete('/files/:id', async (req, res) => {
+  try {
+    await File.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
