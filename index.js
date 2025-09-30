@@ -59,7 +59,7 @@ const userPages = {};
 const receiptSessions = {};
 
 bot.start((ctx) => {
-  ctx.replyWithPhoto('https://www.imghippo.com/i/EOm3044jM.png', {
+  ctx.replyWithPhoto('https://www.imghippo.com/i/EOm3044jM.jpg', {
     caption: '𝐖𝐄𝐋𝐂𝐎𝐌𝐄 𝐓𝐎 𝐓𝐎𝐒𝐇𝐈 𝐃𝐀𝐓𝐀𝐃𝐎𝐌𝐄 𝐁𝐎𝐓 𝐒𝐇𝐎𝐏\n\n𝐏𝐑𝐄𝐌𝐈𝐔𝐌 𝐀𝐍𝐃 𝐅𝐑𝐄𝐒𝐇 𝐃𝐀𝐓𝐀𝐃𝐎𝐌𝐄\n\n𝐀𝐅𝐅𝐎𝐑𝐃𝐀𝐁𝐋𝐄 𝐏𝐑𝐈𝐂𝐄 𝐎𝐍𝐋𝐘\n\n𝐓𝐎 𝐒𝐄𝐄 𝐓𝐇𝐄 𝐀𝐕𝐀𝐈𝐋𝐀𝐁𝐋𝐄 𝐓𝐗𝐓 𝐉𝐔𝐒𝐓 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐓𝐇𝐄 " /files "\n\n𝐃𝐄𝐕𝐄𝐋𝐎𝐏𝐄𝐑 @toshidevmain '
   });
 
