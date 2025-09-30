@@ -17,43 +17,30 @@ const bot = new Telegraf(BOT_TOKEN);
 mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const FileSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  content: { type: String, required: true },
-  password: { type: String, required: true }
+  name: String,
+  content: String,
+  password: String
 }, { timestamps: true });
-
 const File = mongoose.model('File', FileSchema);
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+const upload = multer({ storage });
 
 app.post('/upload', upload.single('file'), async (req, res) => {
-  try {
-    if (!req.file) return res.status(400).send('❌ No file uploaded');
-    if (!req.body.password) return res.status(400).send('❌ Password is required');
-    const content = req.file.buffer.toString('utf-8');
-    const file = new File({
-      name: req.file.originalname,
-      content,
-      password: req.body.password
-    });
-    await file.save();
-    res.send('✅ File uploaded successfully');
-  } catch {
-    res.status(500).send('❌ Error uploading file');
-  }
+  const { password } = req.body;
+  if (!req.file || !password) return res.status(400).send('❌ Missing file or password');
+  const content = req.file.buffer.toString('utf-8');
+  const file = new File({ name: req.file.originalname, content, password });
+  await file.save();
+  res.send('✅ File uploaded successfully');
 });
 
 app.get('/files', async (req, res) => {
-  try {
-    const files = await File.find().sort({ createdAt: -1 });
-    res.json(files);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  const files = await File.find().sort({ _id: -1 });
+  res.json(files);
 });
 
 app.delete('/files/:id', async (req, res) => {
@@ -73,73 +60,115 @@ const userSessions = {};
 const userPages = {};
 const receiptSessions = {};
 
-bot.start(async (ctx) => {
-  await ctx.replyWithPhoto(
-    'https://i.imghippo.com/files/EOm3044jM.png',
-    {
-      caption: '👋 Welcome to Toshi Datadome Bot Shop!\n\n🔥 Premium and Fresh Datadome\n💰 Affordable Prices\n\n📂 Use /files to see available TXT\n\n👨‍💻 Developer: @toshidevmain'
-    }
-  );
+bot.start((ctx) => {
+  ctx.replyWithPhoto('https://i.imghippo.com/files/EOm3044jM.png', {
+    caption: '👋 ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ sᴀɪᴄʜɪ ᴅᴀᴛᴀᴅᴏᴍᴇ ʙᴏᴛ!\n\n🔥 ᴘʀᴇᴍɪᴜᴍ ᴀɴᴅ ғʀᴇsʜ ᴅᴀᴛᴀᴅᴏᴍᴇ\n💰 ᴀғғᴏʀᴅᴀʙʟᴇ ᴘʀɪᴄᴇs \n\n 500ʟɪɴᴇs - 50\n1000ʟɪɴᴇs - 80 \n\n📂 ᴜsᴇ /files ᴛᴏ sᴇᴇ ᴀᴠᴀɪʟᴀʙʟᴇ ᴛxᴛ\n\n👨‍💻 ᴅᴇᴠᴇʟᴏᴘᴇʀ: @toshidevmain'
+  });
+  const userId = ctx.from.id;
+  const username = ctx.from.username || 'N/A';
+  const name = `${ctx.from.first_name} ${ctx.from.last_name || ''}`;
+  const userMessage = `🆕 ɴᴇᴡ ᴜsᴇʀ!\n\nID: ${userId}\nᴜsᴇʀɴᴀᴍᴇ: @${username}\nɴᴀᴍᴇ: ${name}`;
+  bot.telegram.sendMessage(ADMIN_ID, userMessage);
 });
-
-async function sendFilesPage(ctx, page) {
-  const totalFiles = await File.countDocuments();
-  const totalPages = Math.ceil(totalFiles / PAGE_SIZE);
-  if (page < 0) page = 0;
-  if (page >= totalPages) page = totalPages - 1;
-  userPages[ctx.chat.id] = page;
-  const files = await File.find().sort({ createdAt: -1 }).skip(page * PAGE_SIZE).limit(PAGE_SIZE);
-  if (files.length === 0) return ctx.reply('📂 No files available.');
-  const buttons = files.map(file => [Markup.button.callback(file.name, `file_${file._id}`)]);
-  const nav = [];
-  if (page > 0) nav.push(Markup.button.callback('⬅ Prev', 'prev_page'));
-  if (page < totalPages - 1) nav.push(Markup.button.callback('Next ➡', 'next_page'));
-  if (nav.length > 0) buttons.push(nav);
-  await ctx.reply('📂 Available Files:', Markup.inlineKeyboard(buttons));
-}
 
 bot.command('files', async (ctx) => {
-  await sendFilesPage(ctx, 0);
+  const userId = ctx.from.id;
+  userPages[userId] = 0;
+  await sendFilesPage(ctx, userId, 0);
 });
 
-bot.action('next_page', async (ctx) => {
-  const page = (userPages[ctx.chat.id] || 0) + 1;
-  await ctx.deleteMessage();
-  await sendFilesPage(ctx, page);
+bot.on('callback_query', async (ctx) => {
+  const userId = ctx.from.id;
+  const data = ctx.callbackQuery.data;
+  if (data.startsWith('PAGE_')) {
+    const direction = data.split('_')[1];
+    userPages[userId] = userPages[userId] || 0;
+    if (direction === 'NEXT') userPages[userId]++;
+    if (direction === 'BACK') userPages[userId]--;
+    await updateFilesPage(ctx, userId, userPages[userId], ctx.callbackQuery.message.message_id);
+    return ctx.answerCbQuery();
+  }
+  if (data.startsWith('FILE_')) {
+    const fileId = data.split('_')[1];
+    userSessions[userId] = { fileId, waitingForReceipt: true };
+    ctx.answerCbQuery();
+    await ctx.replyWithPhoto('https://i.postimg.cc/CKbVJf0g/GCash-My-QR-29092025125747-PNG.jpg', {
+      caption: '📸 ᴀғᴛᴇʀ ᴘᴀʏᴍᴇɴᴛ, ʀᴇᴘʟʏ ᴛʜɪs ᴍᴇssᴀɢᴇ ᴡɪᴛʜ ʏᴏᴜʀ ʀᴇᴄᴇɪᴘᴛ ғᴏʀ ᴀᴅᴍɪɴ ʀᴇᴠɪᴇᴡ.'
+    });
+  }
 });
 
-bot.action('prev_page', async (ctx) => {
-  const page = (userPages[ctx.chat.id] || 0) - 1;
-  await ctx.deleteMessage();
-  await sendFilesPage(ctx, page);
+bot.on('photo', async (ctx) => {
+  const userId = ctx.from.id;
+  const session = userSessions[userId];
+  if (!session || !session.waitingForReceipt || !session.fileId) return;
+  const file = await File.findById(session.fileId);
+  const userName = ctx.from.username || `${ctx.from.first_name} ${ctx.from.last_name || ''}`;
+  const caption = `🧾 New payment receipt from @${userName} (ID: ${userId})\nFile: ${file?.name || 'Unknown'}\n\nReply with the password to release the file.`;
+  const photo = ctx.message.photo[ctx.message.photo.length - 1];
+  const fileId = photo.file_id;
+  const sentMsg = await ctx.telegram.sendPhoto(ADMIN_ID, fileId, { caption });
+  receiptSessions[sentMsg.message_id] = { userId, fileId: session.fileId };
+  await ctx.reply('✅ ᴘᴀʏᴍᴇɴᴛ ʀᴇᴄᴇɪᴘᴛ ʀᴇᴄᴇɪᴠᴇᴅ\n\nᴘʟᴇᴀsᴇ ᴡᴀɪᴛ ғᴏʀ ᴛʜᴇ ᴀᴅᴍɪɴ ᴀᴘᴘʀᴏᴠᴀʟ.');
+  delete userSessions[userId];
 });
 
-bot.action(/file_(.+)/, async (ctx) => {
-  const fileId = ctx.match[1];
-  const file = await File.findById(fileId);
-  if (!file) return ctx.reply('❌ File not found.');
-  userSessions[ctx.chat.id] = fileId;
-  ctx.reply('🔑 Please enter the password for this file:');
-});
-
-bot.on('text', async (ctx) => {
-  const fileId = userSessions[ctx.chat.id];
-  if (!fileId) return;
+bot.on('message', async (ctx) => {
+  const isAdmin = ctx.from.id.toString() === ADMIN_ID.toString();
+  if (!isAdmin || !ctx.message.reply_to_message || !ctx.message.text) return;
+  const repliedMsgId = ctx.message.reply_to_message.message_id;
+  const password = ctx.message.text;
+  const session = receiptSessions[repliedMsgId];
+  if (!session) return;
+  const { userId, fileId } = session;
   const file = await File.findById(fileId);
   if (!file) {
-    delete userSessions[ctx.chat.id];
-    return ctx.reply('❌ File not found.');
+    ctx.reply('❌ File not found or already deleted.');
+    return;
   }
-  if (ctx.message.text !== file.password) {
-    return ctx.reply('❌ Incorrect password. Try again.');
+  if (file.password !== password) {
+    ctx.reply('❌ Incorrect password for that file.');
+    return;
   }
-  delete userSessions[ctx.chat.id];
-  const filePath = path.join(os.tmpdir(), `${file.name}.txt`);
-  fs.writeFileSync(filePath, file.content);
-  await ctx.replyWithDocument({ source: filePath, filename: `${file.name}.txt` });
-  fs.unlinkSync(filePath);
+  const tempPath = path.join(os.tmpdir(), `${Date.now()}-${file.name}`);
+  fs.writeFileSync(tempPath, file.content);
+  await ctx.telegram.sendDocument(userId, { source: tempPath, filename: file.name });
+  await ctx.telegram.sendMessage(userId, '✅ ᴀᴅᴍɪɴ ᴄᴏɴғɪʀᴍᴇᴅ ʏᴏᴜʀ ʀᴇᴄᴇɪᴘᴛ\n\nғɪʟᴇ ᴡɪʟʟ ʙᴇ ʀᴇʟᴇᴀsᴇ ᴛʜᴀɴᴋ ʏᴏᴜ ғᴏʀ ᴡᴀɪᴛɪɴɢ.');
+  await File.deleteOne({ _id: file._id });
+  fs.unlinkSync(tempPath);
+  await ctx.telegram.deleteMessage(ADMIN_ID, repliedMsgId);
+  delete receiptSessions[repliedMsgId];
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+async function sendFilesPage(ctx, userId, page) {
+  const totalFiles = await File.countDocuments();
+  const totalPages = Math.ceil(totalFiles / PAGE_SIZE);
+  const skip = page * PAGE_SIZE;
+  const files = await File.find().skip(skip).limit(PAGE_SIZE);
+  if (!files.length) return ctx.reply('⚠️ No files found on this page.');
+  const buttons = files.map(file => [Markup.button.callback(file.name, `FILE_${file._id}`)]);
+  buttons.push([
+    Markup.button.callback('⬅️ Back', 'PAGE_BACK'),
+    Markup.button.callback('➡️ Next', 'PAGE_NEXT')
+  ]);
+  ctx.reply(`📄 Page ${page + 1} of ${totalPages}`, Markup.inlineKeyboard(buttons));
+}
+
+async function updateFilesPage(ctx, userId, page, messageId) {
+  const totalFiles = await File.countDocuments();
+  const totalPages = Math.ceil(totalFiles / PAGE_SIZE);
+  const skip = page * PAGE_SIZE;
+  const files = await File.find().skip(skip).limit(PAGE_SIZE);
+  if (!files.length) return ctx.reply('⚠️ No files found on this page.');
+  const buttons = files.map(file => [Markup.button.callback(file.name, `FILE_${file._id}`)]);
+  buttons.push([
+    Markup.button.callback('⬅️ Back', 'PAGE_BACK'),
+    Markup.button.callback('➡️ Next', 'PAGE_NEXT')
+  ]);
+  await ctx.telegram.editMessageText(ctx.chat.id, messageId, undefined, `📄 Page ${page + 1} of ${totalPages}`, {
+    reply_markup: Markup.inlineKeyboard(buttons).reply_markup
+  });
+}
+
 bot.launch();
+app.listen(3000, () => console.log('Web server running at http://localhost:3000'));
