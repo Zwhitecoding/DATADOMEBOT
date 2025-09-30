@@ -6,8 +6,8 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-const BOT_TOKEN = '7780738423:AAHzzkUPnPjAnKJhmjsKjUAhQJMuqW2MkFg';
-const MONGO_URI = 'mongodb+srv://marjhundev:toshi123@toshibot.fko9u.mongodb.net/?retryWrites=true&w=majority';
+const BOT_TOKEN = '8328601655:AAETYC1rYUVGvBbmQS0Dbsj3SoHUqwIiukI';
+const MONGO_URI = 'mongodb+srv://toshidev0:zcode22107@dbtxt.3dxoaud.mongodb.net/DATADOME';
 const ADMIN_ID = '8183360446';
 const PAGE_SIZE = 5;
 
